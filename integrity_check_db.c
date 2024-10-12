@@ -63,34 +63,70 @@ void generate_random_value(uint8_t type, void* o_buffer){
     }bu;
     memset(&bu, 0, sizeof(bu));
     uint8_t size = 0;
+    char result[1024] = {};
+    int len =0;
 
     switch (type) {
         case U_CHAR:
         case CHAR:
             bu.c = rand() % (int) SCHAR_MAX;
             size = sizeof(char);
+            len = snprintf(NULL, 0, "%hhx",bu.c);
+            snprintf(result, len + 1, "%hhx", bu.c);
             break;
         case SHORT:
             bu.s = rand() % SHRT_MAX;
             size = sizeof(short);
+            len = snprintf(NULL, 0, "%hx",bu.s);
+            snprintf(result, len + 1, "%hx", bu.s);
             break;
         case FLOAT:
             bu.f = ((float)rand()/(float)(RAND_MAX)) * 4000.0f;
             size = sizeof(float);
+            len = snprintf(NULL, 0, "%fx",bu.f);
+            snprintf(result, len + 1, "%fx", bu.f);
             break;
         case DOUBLE:
             bu.d = ((double)rand()/(double)(RAND_MAX)) * 32.0f;
             size = sizeof(double);
+            len = snprintf(NULL, 0, "%lfx",bu.d);
+            snprintf(result, len + 1, "%lfx", bu.d);
             break;
         case MULTY_DATA:
             size = sizeof(struct MultyDataBuffer);
             randon_multi_data(&bu.ss);
+
+            len = snprintf(NULL, 0, "%hhx",bu.ss.spec);
+            snprintf(result, len + 1, "%hhx", bu.ss.spec);
+            fwrite(result, len, 1, log_r);
+            memset(result, 0, len);
+
+            len = snprintf(NULL, 0, "%fx",bu.ss.payload);
+            snprintf(result, len + 1, "%fx", bu.ss.payload);
+            fwrite(result, len, 1, log_r);
+            memset(result, 0, len);
+
+            len = snprintf(NULL, 0, "%x",bu.ss.size);
+            snprintf(result, len + 1, "%x", bu.ss.size);
+            fwrite(result, len, 1, log_r);
+            memset(result, 0, len);
+
             break;
     }
     memcpy(o_buffer, &bu, size);
+    if (len) {
+        fwrite(result, len, 1, log_r);
+    }
 }
 
 //private
+
+static void print_var_in_file(void *var, enum TYPE_RACEUP type){
+    char result[1024] = {};
+    int len = snprintf(NULL, 0, "%LX",*(unsigned long long *) var);
+    snprintf(result, len + 1, "%LX",*(unsigned long long*) var);
+    fwrite(result, len, 1, log_r);
+}
 
 static int generate_values_imp(void *args){
     static void* data_b[] ={
@@ -116,61 +152,39 @@ static int generate_values_imp(void *args){
                 char* v = "gas:";
                 fwrite(v, 1, strlen(v), log_r);
                 memcpy(var_name, &v, sizeof(gas));
-                generate_random_value(ty, var);
-                fwrite(var, 1, 1, log_r);
                 break;
             case 1:
                 ty=FLOAT;
                 char* v1 = "brk:";
                 fwrite(v1, 1, strlen(v1), log_r);
-                generate_random_value(ty, var);
-                int len = snprintf(NULL, 0, "%f", var);
-                char result[1024] = {};
-                snprintf(result, len + 1, "%f", var);
-                fwrite(result, len, 1, log_r);
                 break;
             case 2:
                 ty=U_CHAR;
                 char* v2 = "battery_level";
                 fwrite(v2, 1, strlen(v2), log_r);
                 RAND_VAR_ARR(battery_level,var);
-                generate_random_value(ty, var);
-                fwrite(var, 1, 1, log_r);
                 break;
             case 3:
                 ty = DOUBLE;
                 char* v5 = "steering_wheel:";
                 fwrite(v5, 1, strlen(v5), log_r);
-                generate_random_value(ty, var);
-                int len1 = snprintf(NULL, 0, "%f", var);
-                char result1[1024] = {};
-                snprintf(result1, len1 + 1, "%f", var);
-                fwrite(result1, len, 1, log_r);
                 break;
             case 4:
                 ty = SHORT;
                 char* v3 = "motor_pos";
                 fwrite(v3, 1, strlen(v3), log_r);
                 RAND_VAR_ARR(motor_pos,var);
-                generate_random_value(ty, var);
-                fwrite(var, sizeof(short), 1, log_r);
                 break;
             case 5:
                 ty = FLOAT;
                 char* v4 = "brk_pos:";
                 fwrite(v4, 1, strlen(v4), log_r);
-                generate_random_value(ty, var);
-                int len2 = snprintf(NULL, 0, "%f", var);
-                char result2[1024] = {};
-                snprintf(result2, len2 + 1, "%f", var);
-                fwrite(result, len2, 1, log_r);
                 break;
             case 6:
                 ty = MULTY_DATA;
                 char* v6 = "sensors";
                 fwrite(v6, 1, strlen(v6), log_r);
                 RAND_VAR_ARR(sensors, var);
-                generate_random_value(ty, var);
                 break;
             default:
                 fprintf(stderr, "invalid var index: %d\n",rand_index);
@@ -182,6 +196,8 @@ static int generate_values_imp(void *args){
             fprintf(stderr, "invalid var index: %d\n",rand_index);
             assert(1==0);
         }
+        generate_random_value(ty, var);
+        print_var_in_file(var,ty);
         char *end = "\n";
         fwrite(end, 1, strlen(end), log_r);
     }
