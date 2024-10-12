@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define LOG_FILE "./generated_values_history.txt"
 
@@ -131,7 +132,7 @@ static void print_var_in_file(void *var, enum TYPE_RACEUP type){
 static int generate_values_imp(void *args){
     static void* data_b[] ={
         &gas,
-        &brk,
+        &brk1,
         &battery_level,
         &steering_whell,
         &motor_pos,
@@ -155,7 +156,7 @@ static int generate_values_imp(void *args){
                 break;
             case 1:
                 ty=FLOAT;
-                char* v1 = "brk:";
+                char* v1 = "brk1:";
                 fwrite(v1, 1, strlen(v1), log_r);
                 break;
             case 2:
@@ -200,6 +201,7 @@ static int generate_values_imp(void *args){
         print_var_in_file(var,ty);
         char *end = "\n";
         fwrite(end, 1, strlen(end), log_r);
+        usleep(200);
     }
 }
 
@@ -236,10 +238,11 @@ failed_thread:
 int main(int argc, char *argv[])
 {
     generate_values();
+    
     while (1) {
         getchar();
         printf("gas: %d\n",gas);
-        printf("brk: %f\n",brk);
+        printf("brk1: %f\n",brk1);
         for (int i =0;i < sizeof(battery_level)/sizeof(battery_level[0]); i++) {
             printf("bat lev %d: %d\n",i,battery_level[i]);
         }
@@ -247,7 +250,7 @@ int main(int argc, char *argv[])
         for (int i =0;i < sizeof(motor_pos)/sizeof(motor_pos[0]); i++) {
             printf("mot pos %d: %d\n",i,motor_pos[i]);
         }
-        printf("brk press: %f\n",brk_pressure);
+        printf("brk1 press: %f\n",brk_pressure);
         for (int i =0;i < sizeof(sensors)/sizeof(sensors[0]); i++) {
             printf("sensor[%d]: [spec: %c, size: %d, payload: %f]\n",
                     i,sensors[i].spec,sensors[i].size,sensors[i].payload);

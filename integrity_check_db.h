@@ -8,7 +8,7 @@ typedef struct MultyDataBuffer{
 }MultyDataBuffer;
 
 char gas = 0;
-float brk= 0;
+float brk1= 0;
 unsigned char battery_level[8]= {};
 double steering_whell = 0.0;
 short motor_pos[3] = {}; 
