@@ -1,15 +1,33 @@
 #include "./integrity_check_db.h"
 
+#include <stdio.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#include <stdio.h>
+#include <tchar.h>
+
+#define DIV 1048576 
+#define WIDTH 7
+#define usleep(time) Sleep(time)
+#endif
+
+
+#ifdef linux
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <threads.h>
+#endif
+
 #include <assert.h>
 #include <limits.h>
 #include <float.h>
 #include <stdint.h>
 #include <string.h>
-#include <threads.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdio.h>
-#include <unistd.h>
 
 #define LOG_FILE "./generated_values_history.txt"
 
@@ -36,12 +54,12 @@ static thrd_t thrd = -1;
 static FILE *log_r = NULL;
 
 enum TYPE_RACEUP{
-    CHAR,
-    U_CHAR,
-    SHORT,
-    FLOAT,
-    DOUBLE,
-    MULTY_DATA,
+    RACEUP_CHAR,
+    RACEUP_U_CHAR,
+    RACEUP_SHORT,
+    RACEUP_FLOAT,
+    RACEUP_DOUBLE,
+    RACEUP_MULTY_DATA,
 };
 
 static void randon_multi_data(struct MultyDataBuffer* buff){
@@ -68,32 +86,32 @@ void generate_random_value(uint8_t type, void* o_buffer){
     int len =0;
 
     switch (type) {
-        case U_CHAR:
-        case CHAR:
+        case RACEUP_U_CHAR:
+        case RACEUP_CHAR:
             bu.c = rand() % (int) SCHAR_MAX;
             size = sizeof(char);
             len = snprintf(NULL, 0, "%hhx",bu.c);
             snprintf(result, len + 1, "%hhx", bu.c);
             break;
-        case SHORT:
+        case RACEUP_SHORT:
             bu.s = rand() % SHRT_MAX;
             size = sizeof(short);
             len = snprintf(NULL, 0, "%hx",bu.s);
             snprintf(result, len + 1, "%hx", bu.s);
             break;
-        case FLOAT:
+        case RACEUP_FLOAT:
             bu.f = ((float)rand()/(float)(RAND_MAX)) * 4000.0f;
             size = sizeof(float);
             len = snprintf(NULL, 0, "%fx",bu.f);
             snprintf(result, len + 1, "%fx", bu.f);
             break;
-        case DOUBLE:
+        case RACEUP_DOUBLE:
             bu.d = ((double)rand()/(double)(RAND_MAX)) * 32.0f;
             size = sizeof(double);
             len = snprintf(NULL, 0, "%lfx",bu.d);
             snprintf(result, len + 1, "%lfx", bu.d);
             break;
-        case MULTY_DATA:
+        case RACEUP_MULTY_DATA:
             size = sizeof(struct MultyDataBuffer);
             randon_multi_data(&bu.ss);
 
@@ -149,40 +167,40 @@ static int generate_values_imp(void *args){
         enum TYPE_RACEUP ty = 99;
         switch (rand_index) {
             case 0:
-                ty= CHAR;
+                ty= RACEUP_CHAR;
                 char* v = "gas:";
                 fwrite(v, 1, strlen(v), log_r);
                 memcpy(var_name, &v, sizeof(gas));
                 break;
             case 1:
-                ty=FLOAT;
+                ty=RACEUP_FLOAT;
                 char* v1 = "brk1:";
                 fwrite(v1, 1, strlen(v1), log_r);
                 break;
             case 2:
-                ty=U_CHAR;
+                ty=RACEUP_U_CHAR;
                 char* v2 = "battery_level";
                 fwrite(v2, 1, strlen(v2), log_r);
                 RAND_VAR_ARR(battery_level,var);
                 break;
             case 3:
-                ty = DOUBLE;
+                ty = RACEUP_DOUBLE;
                 char* v5 = "steering_wheel:";
                 fwrite(v5, 1, strlen(v5), log_r);
                 break;
             case 4:
-                ty = SHORT;
+                ty = RACEUP_SHORT;
                 char* v3 = "motor_pos";
                 fwrite(v3, 1, strlen(v3), log_r);
                 RAND_VAR_ARR(motor_pos,var);
                 break;
             case 5:
-                ty = FLOAT;
+                ty = RACEUP_FLOAT;
                 char* v4 = "brk_pos:";
                 fwrite(v4, 1, strlen(v4), log_r);
                 break;
             case 6:
-                ty = MULTY_DATA;
+                ty = RACEUP_MULTY_DATA;
                 char* v6 = "sensors";
                 fwrite(v6, 1, strlen(v6), log_r);
                 RAND_VAR_ARR(sensors, var);
@@ -205,8 +223,17 @@ static int generate_values_imp(void *args){
     }
 }
 
-//public
+#ifdef _WIN32
 
+DWORD WINAPI MyThreadFunction( LPVOID lpParam )
+{
+    generate_values_imp(NULL);
+    return 0;
+}
+
+#endif
+
+//public
 void generate_values(){
     if (active) return;
 
@@ -215,12 +242,27 @@ void generate_values(){
     if (!log_r) {
         goto failed_file;
     }
-    
+#ifdef linux
+
     thrd_create(&thrd, generate_values_imp, NULL);
     if (thrd < 0) {
         goto failed_thread;
     }
     active = 1;
+#endif
+
+#ifdef _WIN32
+    DWORD   dwThreadIdArray out;
+    hThreadArray[i] = CreateThread( 
+            NULL,                   // default security attributes
+            0,                      // use default stack size  
+            MyThreadFunction,       // thread function name
+            NULL,                   // argument to thread function 
+            0,                      // use default creation flags 
+            &out);                  // returns the thread identifier
+
+#endif
+
     return;
 
 failed_file:
