@@ -9,8 +9,8 @@ typedef struct MultyDataBuffer{
 
 extern char gas;
 extern float brk1;
-extern unsigned char battery_level[8];
-extern double steering_whell;
+extern unsigned char voltage_level[8];
+extern double steering_wheel;
 extern short motor_pos[3]; 
 extern float brk_pressure;
 extern struct MultyDataBuffer sensors[13];
