@@ -2,8 +2,8 @@
 
 char gas = 0;
 float brk1= 0;
-unsigned char battery_level[8]= {};
-double steering_whell = 0.0;
+unsigned char voltage_level[8]= {};
+double steering_wheel = 0.0;
 short motor_pos[3] = {}; 
 float brk_pressure = 0.0;
 struct MultyDataBuffer sensors[13];
@@ -17,7 +17,7 @@ struct MultyDataBuffer sensors[13];
 
 #define DIV 1048576 
 #define WIDTH 7
-#define usleep(time) Sleep(time/300)
+#define usleep(time) Sleep(time/150)
 #endif
 
 
@@ -161,8 +161,8 @@ static int generate_values_imp(void *args){
     static void* data_b[] ={
         &gas,
         &brk1,
-        &battery_level,
-        &steering_whell,
+        &voltage_level,
+        &steering_wheel,
         &motor_pos,
         &brk_pressure,
         &sensors,
@@ -189,9 +189,9 @@ static int generate_values_imp(void *args){
                 break;
             case 2:
                 ty=RACEUP_U_CHAR;
-                char* v2 = "battery_level";
+                char* v2 = "voltage_level";
                 fwrite(v2, 1, strlen(v2), log_r);
-                RAND_VAR_ARR(battery_level,var);
+                RAND_VAR_ARR(voltage_level,var);
                 break;
             case 3:
                 ty = RACEUP_DOUBLE;
@@ -295,10 +295,10 @@ failed_thread:
 //         getchar();
 //         printf("gas: %d\n",gas);
 //         printf("brk1: %f\n",brk1);
-//         for (int i =0;i < sizeof(battery_level)/sizeof(battery_level[0]); i++) {
-//             printf("bat lev %d: %d\n",i,battery_level[i]);
+//         for (int i =0;i < sizeof(voltage_level)/sizeof(voltage_level[0]); i++) {
+//             printf("bat lev %d: %d\n",i,voltage_level[i]);
 //         }
-//         printf("str weel: %lf\n",steering_whell);
+//         printf("str weel: %lf\n",steering_wheel);
 //         for (int i =0;i < sizeof(motor_pos)/sizeof(motor_pos[0]); i++) {
 //             printf("mot pos %d: %d\n",i,motor_pos[i]);
 //         }
