@@ -9,7 +9,7 @@
 
 #define DIV 1048576 
 #define WIDTH 7
-#define usleep(time) Sleep(time)
+#define usleep(time) Sleep(time/10)
 #endif
 
 
@@ -50,7 +50,9 @@
 }
 
 static char active = 0;
+#ifdef linux
 static thrd_t thrd = -1;
+#endif
 static FILE *log_r = NULL;
 
 enum TYPE_RACEUP{
@@ -252,8 +254,8 @@ void generate_values(){
 #endif
 
 #ifdef _WIN32
-    DWORD   dwThreadIdArray out;
-    hThreadArray[i] = CreateThread( 
+    DWORD out;
+    CreateThread( 
             NULL,                   // default security attributes
             0,                      // use default stack size  
             MyThreadFunction,       // thread function name
