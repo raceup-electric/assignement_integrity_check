@@ -104,19 +104,19 @@ void generate_random_value(uint8_t type, void* o_buffer){
             snprintf(result, len + 1, "%hhx", bu.c);
             break;
         case RACEUP_SHORT:
-            bu.s = rand() % SHRT_MAX;
+            bu.s = rand() % SHRT_MAX - SHRT_MAX/2;
             size = sizeof(short);
             len = snprintf(NULL, 0, "%hx",bu.s);
             snprintf(result, len + 1, "%hx", bu.s);
             break;
         case RACEUP_FLOAT:
-            bu.f = ((float)rand()/(float)(RAND_MAX)) * 4000.0f;
+            bu.f = ((float)rand()/(float)(RAND_MAX)) *150.0f;
             size = sizeof(float);
             len = snprintf(NULL, 0, "%fx",bu.f);
             snprintf(result, len + 1, "%fx", bu.f);
             break;
         case RACEUP_DOUBLE:
-            bu.d = ((double)rand()/(double)(RAND_MAX)) * 32.0f;
+            bu.d = ((double)rand()/(double)(RAND_MAX)) * 150.0f;
             size = sizeof(double);
             len = snprintf(NULL, 0, "%lfx",bu.d);
             snprintf(result, len + 1, "%lfx", bu.d);
