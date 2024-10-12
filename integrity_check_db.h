@@ -7,13 +7,13 @@ typedef struct MultyDataBuffer{
     float payload;
 }MultyDataBuffer;
 
-char gas = 0;
-float brk1= 0;
-unsigned char battery_level[8]= {};
-double steering_whell = 0.0;
-short motor_pos[3] = {}; 
-float brk_pressure = 0.0;
-struct MultyDataBuffer sensors[13];
+extern char gas;
+extern float brk1;
+extern unsigned char battery_level[8];
+extern double steering_whell;
+extern short motor_pos[3]; 
+extern float brk_pressure;
+extern struct MultyDataBuffer sensors[13];
 
 void generate_values();
 

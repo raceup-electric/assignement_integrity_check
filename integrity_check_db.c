@@ -1,5 +1,13 @@
 #include "./integrity_check_db.h"
 
+char gas = 0;
+float brk1= 0;
+unsigned char battery_level[8]= {};
+double steering_whell = 0.0;
+short motor_pos[3] = {}; 
+float brk_pressure = 0.0;
+struct MultyDataBuffer sensors[13];
+
 #include <stdio.h>
 
 #ifdef _WIN32
@@ -279,26 +287,26 @@ failed_thread:
 
 }
 
-int main(int argc, char *argv[])
-{
-    generate_values();
-    
-    while (1) {
-        getchar();
-        printf("gas: %d\n",gas);
-        printf("brk1: %f\n",brk1);
-        for (int i =0;i < sizeof(battery_level)/sizeof(battery_level[0]); i++) {
-            printf("bat lev %d: %d\n",i,battery_level[i]);
-        }
-        printf("str weel: %lf\n",steering_whell);
-        for (int i =0;i < sizeof(motor_pos)/sizeof(motor_pos[0]); i++) {
-            printf("mot pos %d: %d\n",i,motor_pos[i]);
-        }
-        printf("brk1 press: %f\n",brk_pressure);
-        for (int i =0;i < sizeof(sensors)/sizeof(sensors[0]); i++) {
-            printf("sensor[%d]: [spec: %c, size: %d, payload: %f]\n",
-                    i,sensors[i].spec,sensors[i].size,sensors[i].payload);
-        }
-    }
-    return EXIT_SUCCESS;
-}
+// int main(int argc, char *argv[])
+// {
+//     generate_values();
+//     
+//     while (1) {
+//         getchar();
+//         printf("gas: %d\n",gas);
+//         printf("brk1: %f\n",brk1);
+//         for (int i =0;i < sizeof(battery_level)/sizeof(battery_level[0]); i++) {
+//             printf("bat lev %d: %d\n",i,battery_level[i]);
+//         }
+//         printf("str weel: %lf\n",steering_whell);
+//         for (int i =0;i < sizeof(motor_pos)/sizeof(motor_pos[0]); i++) {
+//             printf("mot pos %d: %d\n",i,motor_pos[i]);
+//         }
+//         printf("brk1 press: %f\n",brk_pressure);
+//         for (int i =0;i < sizeof(sensors)/sizeof(sensors[0]); i++) {
+//             printf("sensor[%d]: [spec: %c, size: %d, payload: %f]\n",
+//                     i,sensors[i].spec,sensors[i].size,sensors[i].payload);
+//         }
+//     }
+//     return EXIT_SUCCESS;
+// }
