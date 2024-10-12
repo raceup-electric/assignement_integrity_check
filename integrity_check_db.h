@@ -5,7 +5,6 @@ typedef struct MultyDataBuffer{
     char spec;
     int size;
     float payload;
-    char* name;
 }MultyDataBuffer;
 
 char gas = 0;
