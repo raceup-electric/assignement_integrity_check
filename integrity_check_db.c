@@ -9,7 +9,7 @@
 
 #define DIV 1048576 
 #define WIDTH 7
-#define usleep(time) Sleep(time/10)
+#define usleep(time) Sleep(time/300)
 #endif
 
 
